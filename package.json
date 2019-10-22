@@ -1,0 +1,29 @@
+{
+  "name": "y",
+  "version": "0.0.1",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eknir/msgOracle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eknir/msgOracle/issues"
+  },
+  "homepage": "https://github.com/eknir/msgOracle#readme",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "dotenv": "^8.1.0",
+    "openzeppelin-solidity": "^2.3.0",
+    "openzeppelin-test-helpers": "^0.5.1",
+    "truffle-hdwallet-provider": "^1.0.17"
+  }
+}
