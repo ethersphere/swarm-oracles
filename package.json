@@ -1,13 +1,13 @@
 {
-  "name": "y",
+  "name": "swarm-oracles",
   "version": "0.0.1",
-  "description": "",
+  "description": "Smart-contracts for on-chain oracles, used for updating global variables in the Swarm network",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "truffle test"
   },
   "repository": {
     "type": "git",
