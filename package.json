@@ -11,17 +11,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eknir/msgOracle.git"
+    "url": "git+https://github.com/ethersphere/swarm-oracles.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/eknir/msgOracle/issues"
+    "url": "https://github.com/ethersphere/swarm-oracles/issues"
   },
-  "homepage": "https://github.com/eknir/msgOracle#readme",
-  "dependencies": {
+  "homepage": "https://github.com/ethersphere/swarm-oracles#readme",
+  "devDependencies": {
     "chai": "^4.2.0",
     "openzeppelin-solidity": "^2.3.0",
-    "openzeppelin-test-helpers": "^0.5.1",
+    "openzeppelin-test-helpers": "^0.5.1"
   }
 }
