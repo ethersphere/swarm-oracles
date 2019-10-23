@@ -6,7 +6,7 @@ import "node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 @title MsgOracle
 @author Rinke Hendriksen <rinke@ethswarm.org>
 @notice Set the honey prices for various messages in Swarm
-@dev This on-chain msgOracle must be queried by a swarm-node. A query for all msgPrices simultaneously should result in the following object:
+@dev This on-chain msgOracle must be queried by a swarm-node. By reading the event logs, a node is able to construct the following object:
 msgPrices: {TTL, prices: {swarmMsgX: [<validFrom0, price>, <validFromN, price>], swarmMsgX: [<validFrom0, price>, <validFromN, price>]}}.
 this object expires after TTL seconds. The prices object holds all message types with their respective price arrays.
 In the price array of a message, multiple prices can be quoted. The chosen price is the most-recent price.
@@ -15,7 +15,7 @@ contract MsgOracle is Ownable {
     /*
     TTL is the TTL applied by nodes (how long is a query to this oracle valid)
     oldTTL is used internally when lastUpdated is not longer than oldTTL ago,
-    furthermore, we don't allow updating TTL when lastUpdated is not currentTTL seconds ago.
+    furthermore, we don't allow updating TTL when lastUpdated is not TTL seconds ago.
     */
     uint256 public TTL;
     uint256 private oldTTL;
@@ -52,11 +52,9 @@ contract MsgOracle is Ownable {
     }
 
     /**
-    @notice sets a new price for a swarmMsg.
-    @dev sets the prices of the msgPrices object {TTL, prices}.
-    Prices is an object consisting of a swarmMsg objects (prices: {swarmMsgX, swarmMsgY}) for every unique swarmMsg emitted.
-    SwarmMsg is an array of validFrom, price tuples (swarmMsg: [<validFrom0, price>, <validFromN, price>]).
-    a new msgPrice is effective after from validFrom onwards.
+    @notice Sets a new price for a swarmMsg.
+    @dev Emits a LogSetMsgPrice which allows a swarm-node to insert a new entry in the prices object.
+    The function ensures that validFrom is at least TTL (or oldTTL, when TTL is updated recently) seconds in the future
     @param swarmMsg the bytes32 representation of the swarmMsg for which the price is quoted.
     @param price the price of a particular swarmMsg, valid from validFrom onwards
     @param validFrom the UNIX timestamp from which the newPrice for the swarmMsg is active.
@@ -72,11 +70,12 @@ contract MsgOracle is Ownable {
     }
 
     /**
-    @notice reverts a previously emitted price of a swarmMsg
-    @dev if a LogNewMsgPrice event exists with the same arguments before this function is called, the LogSetMsgPrice should be disregarded after TTL seconds.
-    @param swarmMsg match with swarmMsg from LogSetMsgPrice(swarmMsg, price, validFrom)
-    @param price match with swarmMsg from LogSetMsgPrice(swarmMsg, price, validFrom)
-    @param validFrom match with swarmMsg from LogSetMsgPrice(swarmMsg, price, validFrom)
+    @notice Instructs a node to disregards a previously emitted LogSetMsgPrice
+    @dev If a LogNewMsgPrice event exists with the same arguments before this function is called, the LogSetMsgPrice (and its effect on the prices object)
+    should be disregarded after TTL seconds.
+    @param swarmMsg Match with swarmMsg from LogSetMsgPrice(swarmMsg, price, validFrom)
+    @param price Match with price from LogSetMsgPrice(swarmMsg, price, validFrom)
+    @param validFrom Match with validFrom from LogSetMsgPrice(swarmMsg, price, validFrom)
      */
     function revertMsgPrice(bytes32 swarmMsg, uint256 price, uint256 validFrom) public onlyOwner {
         emit LogRevertMsgPrice(swarmMsg, price, validFrom);
