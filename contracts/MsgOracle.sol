@@ -13,7 +13,7 @@ In the price array of a message, multiple prices can be quoted. The chosen price
 */
 contract MsgOracle is Ownable {
     /*
-    currentTTL is the TTL applied by nodes (how long is a query to this oracle valid)
+    TTL is the TTL applied by nodes (how long is a query to this oracle valid)
     oldTTL is used internally when lastUpdated is not longer than oldTTL ago,
     furthermore, we don't allow updating TTL when lastUpdated is not currentTTL seconds ago.
     */

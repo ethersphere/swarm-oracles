@@ -1,5 +1,5 @@
 # Introduction
-The msgOracle smart-contracts include a proposal for the `messageToHoneyContract` as described by <SWIP reference here>. Furthermore, a simple governance scheme is included which allows non-impactfull interactions (such as changing a price within boundaries) with the `messageToHoneyContract` to be performed by one address, while impactful interactions need an approval of a certain percentage of Swarm stakeholders/developers.
+The msgOracle smart-contracts are intended to be the on-chain component (`messageToHoneyContract`) of [SWIP 21](https://github.com/ethersphere/SWIPs/blob/bddd78a24ae4c036cb63f79578cf26c2ec9195a9/SWIPs/swip-21-message_to_honey.md).
 
 # MsgOracle
 The MsgOracle is a smart-contract which inherits functionalities from [openzeppelin-solidity/ownable](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/ownership/Ownable.sol). As such, it can define an owner and limit access to certain function to be only performed by the owner. 
