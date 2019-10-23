@@ -1,6 +1,7 @@
 pragma solidity ^0.5.12;
 
 import "node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
 @title MsgOracle
@@ -12,6 +13,7 @@ this object expires after TTL seconds. The prices object holds all message types
 In the price array of a message, multiple prices can be quoted. The chosen price is the most-recent price.
 */
 contract MsgOracle is Ownable {
+    using SafeMath for uint256;
     /*
     TTL is the TTL applied by nodes (how long is a query to this oracle valid)
     oldTTL is used internally when lastUpdated is not longer than oldTTL ago,
@@ -44,7 +46,7 @@ contract MsgOracle is Ownable {
     @param _TTL TTL which will be effective after TTL seconds
     */
     function newTTL(uint256 _TTL) public onlyOwner {
-        require(lastUpdated + TTL <= now, "MsgOracleOwner: TTL less than TTL seconds ago updated");
+        require(lastUpdated.add(TTL) <= now, "MsgOracleOwner: TTL less than TTL seconds ago updated");
         oldTTL = TTL;
         TTL = _TTL;
         lastUpdated = now;
