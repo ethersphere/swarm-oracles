@@ -30,24 +30,37 @@ contract('MsgOracle', function([owner, nonOwner]) {
     const newTTL = new BN(120)
     context('when owner is the caller', function() {
       const caller = owner
-      context('When newTTL was last updated more than TTL seconds ago', function() {
-        beforeEach(async function() {
-          await time.increase(InitialTTL)
-          const { logs } = await this.msgOracle.newTTL(newTTL, {from: caller})
-          this.logs = logs
+      context('when there is no TTL update', function() {
+        context('When newTTL was last updated more than TTL seconds ago', function() {
+          beforeEach(async function() {
+            await time.increase(InitialTTL)
+            const { logs } = await this.msgOracle.newTTL(newTTL, {from: caller})
+            this.logs = logs
+          })
+          it('should have updated TTL', async function() {
+            expect(await this.msgOracle.TTL()).bignumber.to.be.equal(newTTL)
+          })
+          it('should emit a LogNewTTL event', function() {
+            expectEvent.inLogs(this.logs, 'LogNewTTL', {
+              TTL: newTTL
+            })
+          })
         })
-        it('should have updated TTL', async function() {
-          expect(await this.msgOracle.TTL()).bignumber.to.be.equal(newTTL)
-        })
-        it('should emit a LogNewTTL event', function() {
-          expectEvent.inLogs(this.logs, 'LogNewTTL', {
-            TTL: newTTL
+        context('When newTTL was last updated less than TTL seconds ago', async function() {
+          it('reverts', async function() {
+            const revertMsg = "MsgOracleOwner: TTL less than TTL seconds ago updated"
+            await expectRevert(this.msgOracle.newTTL(newTTL, {from: caller}), revertMsg)
           })
         })
       })
-      context('When newTTL was last updated less than TTL seconds ago', async function() {
+      context('when there is a TTL update', function() {
+        const newTTL = new BN(120)
+        beforeEach(async function() {
+          await time.increase(InitialTTL)
+          await this.msgOracle.newTTL(newTTL, {from: owner})
+        })
         it('reverts', async function() {
-          const revertMsg = "MsgOracleOwner: TTL less than TTL seconds ago updated"
+          const revertMsg = "MsgOracleOwner: oldTTL still active"
           await expectRevert(this.msgOracle.newTTL(newTTL, {from: caller}), revertMsg)
         })
       })
@@ -69,9 +82,8 @@ contract('MsgOracle', function([owner, nonOwner]) {
       context('when there is no pending TTL update', function() {
         context('when validFrom is at least TTL seconds in the future', async function() {
           beforeEach(async function() {
-            const validFrom = (await time.latest()).add(InitialTTL)
-            this.validFrom = validFrom
-            const { logs } = await this.msgOracle.setMsgPrice(msgType, msgPrice, validFrom, {from: caller}) 
+            this.validFrom = (await time.latest()).add(InitialTTL)
+            const { logs } = await this.msgOracle.setMsgPrice(msgType, msgPrice, this.validFrom, {from: caller})
             this.logs = logs
           })
           it('should emit a LogSetMsgPrice event', function() {
@@ -83,9 +95,9 @@ contract('MsgOracle', function([owner, nonOwner]) {
           })
         })
         context('when validFrom is less than TTL seconds in the future', async function() {
-          const validFrom = (await time.latest())
-          const revertMsg = "MsgOracle: validFrom not oldTTL seconds in the future"
+          const revertMsg = "MsgOracle: validFrom not TTL seconds in the future"
           it('reverts', async function() {
+            const validFrom = (await time.latest())
             await expectRevert(this.msgOracle.setMsgPrice(msgType, msgPrice, validFrom, {from: caller}), revertMsg)
           })
         })
@@ -99,9 +111,8 @@ contract('MsgOracle', function([owner, nonOwner]) {
         context('when the TTL update is pending', function() {
           context('when validFrom is at least old TTL in the future', function() {
             beforeEach(async function() {
-              const validFrom = (await time.latest()).add(InitialTTL)
-              this.validFrom = validFrom
-              const { logs } = await this.msgOracle.setMsgPrice(msgType, msgPrice, validFrom, {from: caller})
+              this.validFrom = (await time.latest()).add(InitialTTL)
+              const { logs } = await this.msgOracle.setMsgPrice(msgType, msgPrice, this.validFrom, {from: caller})
               this.logs = logs
             })
             it('should emit a LogSetMsgPrice event', function() {
@@ -114,8 +125,7 @@ contract('MsgOracle', function([owner, nonOwner]) {
           })
           context('when TTL is less than the old TTL in the future', async function() {
             beforeEach(async function() {
-              const validFrom = (await time.latest())
-              this.validFrom = validFrom
+              this.validFrom = (await time.latest())
             })
             const revertMsg = "MsgOracle: validFrom not oldTTL seconds in the future"
             it('reverts', async function() {
@@ -129,9 +139,8 @@ contract('MsgOracle', function([owner, nonOwner]) {
           })
           context('when TTL is more than the new TTL in the future', function() {
             beforeEach(async function() {
-              const validFrom = (await time.latest()).add(newTTL)
-              this.validFrom = validFrom
-              const { logs } = await this.msgOracle.setMsgPrice(msgType, msgPrice, validFrom, {from: caller})
+              this.validFrom = (await time.latest()).add(newTTL)
+              const { logs } = await this.msgOracle.setMsgPrice(msgType, msgPrice, this.validFrom, {from: caller})
               this.logs = logs
             })
             it('should emit a LogSetMsgPrice event', function() {
@@ -144,8 +153,7 @@ contract('MsgOracle', function([owner, nonOwner]) {
           })
           context('when TTL is less than the new TTL in the future', function() {
             beforeEach(async function() {
-              const validFrom = (await time.latest())
-              this.validFrom = validFrom
+              this.validFrom = (await time.latest())
             })
             const revertMsg = "MsgOracle: validFrom not TTL seconds in the future"
             it('reverts', async function() {
@@ -158,8 +166,8 @@ contract('MsgOracle', function([owner, nonOwner]) {
     context('when owner is not the caller', async function() {
       const caller = nonOwner
       const revertMsg = "Ownable: caller is not the owner"
-      const validFrom = (await time.latest())
       it('reverts', async function() {
+        const validFrom = (await time.latest())
         await expectRevert(this.msgOracle.setMsgPrice(msgType, msgPrice, validFrom, {from: caller}), revertMsg)
       })
     })

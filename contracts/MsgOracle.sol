@@ -1,7 +1,7 @@
 pragma solidity ^0.5.12;
 
-import "node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
 @title MsgOracle
@@ -46,6 +46,7 @@ contract MsgOracle is Ownable {
     @param _TTL TTL which will be effective after TTL seconds
     */
     function newTTL(uint256 _TTL) public onlyOwner {
+        require(lastUpdated.add(oldTTL) <= now, "MsgOracleOwner: oldTTL still active");
         require(lastUpdated.add(TTL) <= now, "MsgOracleOwner: TTL less than TTL seconds ago updated");
         oldTTL = TTL;
         TTL = _TTL;
