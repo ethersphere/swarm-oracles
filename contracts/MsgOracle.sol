@@ -62,7 +62,8 @@ contract MsgOracle is Ownable {
     @param validFrom the UNIX timestamp from which the newPrice for the swarmMsg is active.
     */
     function setMsgPrice(bytes32 swarmMsg, uint256 price, uint256 validFrom) public onlyOwner {
-        if(lastUpdated - oldTTL <= now) {
+        // if lastUpdated is less than oldTTL ago, we have to compare validFrom against oldTTL`
+        if(lastUpdated > now - oldTTL) {
             require(validFrom >= now + oldTTL, "MsgOracle: validFrom not oldTTL seconds in the future");
         } else {
             require(validFrom >= now + TTL, "MsgOracle: validFrom not TTL seconds in the future");

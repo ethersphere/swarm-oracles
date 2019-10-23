@@ -97,7 +97,7 @@ contract('MsgOracle', function([owner, nonOwner]) {
           await this.msgOracle.newTTL(newTTL, {from: owner})
         })
         context('when the TTL update is pending', function() {
-          context('when validFrom is more than the old TTL in the future', function() {
+          context('when validFrom is at least old TTL in the future', function() {
             beforeEach(async function() {
               const validFrom = (await time.latest()).add(InitialTTL)
               this.validFrom = validFrom
@@ -147,7 +147,7 @@ contract('MsgOracle', function([owner, nonOwner]) {
               const validFrom = (await time.latest())
               this.validFrom = validFrom
             })
-            const revertMsg = "MsgOracle: validFrom not oldTTL seconds in the future"
+            const revertMsg = "MsgOracle: validFrom not TTL seconds in the future"
             it('reverts', async function() {
               await expectRevert(this.msgOracle.setMsgPrice(msgType, msgPrice, this.validFrom, {from: caller}), revertMsg)
             })
