@@ -1,0 +1,12 @@
+language: generic
+services:
+- docker
+branches:
+  only:
+  - master
+jobs:
+  include:
+  - stage: test
+    script:
+    - docker build -t oracles-travis .
+    - docker run -it --rm oracles-travis npm test  
