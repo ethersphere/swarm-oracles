@@ -5,6 +5,32 @@ The msgOracle smart-contracts are intended to be the on-chain component (`messag
 The MsgOracle is a smart-contract which inherits functionalities from [openzeppelin-solidity/ownable](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/ownership/Ownable.sol). As such, it can define an owner and limit access to certain function to be only performed by the owner. 
 By reading the events emitted by this smart-contract (in particular: `LogNewTTL`, `LogSetMsgPrice` and `LogRevertMsgPrice`), nodes know the latest value of all message prices in Swarm and be guaranteed that their peers apply the same prices.
 
+## Tests
+
+This is a regular truffle project. You can either use `truffle test` (if installed) or `npm test` which will use a locally installed truffle.
+
+```sh
+npm install
+npm test
+```
+
+## Go-bindings
+
+To generate go bindings use
+```sh
+npm run abigen
+```
+
+This will generate the bindings in the `bindings/` directory. Suitable versions of `solc` and `abigen` have to be installed for this to work.
+Alternatively this can also be done through docker:
+
+```sh
+docker build -t swarm-oracles .
+docker run -v $(pwd)/bindings:/oracles/bindings swarm-oracles npm run abigen
+```
+
+In addition to the file from `abigen` this will also generate a go file that includes the runtime bytecode.
+
 ## Description of public functions
 The `msgOracle` exposes the following functions:
 

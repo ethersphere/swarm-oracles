@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "truffle test"
+    "test": "truffle test",
+    "abigen": "./abigen/gen.sh MsgOracle",
+    "coverage": "solidity-coverage"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,8 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "openzeppelin-solidity": "^2.3.0",
-    "openzeppelin-test-helpers": "^0.5.1"
+    "openzeppelin-test-helpers": "^0.5.1",
+    "solidity-coverage": "^0.6.7",
+    "truffle": "^5.0.41"
   }
 }
